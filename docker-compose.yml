@@ -1,0 +1,35 @@
+version: "3.9"
+   
+services:
+  db:
+    image: postgres:13
+    container_name: readfast_db
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=127.0.0.1
+  backend:
+    build: 
+      context: ./readfast_backend
+      dockerfile: Dockerfile
+    container_name: readfast_backend
+    command: bash -c "
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        /code/wait-for-it.sh db:5432 -- python manage.py runserver 0.0.0.0:8000"
+    ports: 
+      - 8000:8000
+    depends_on:
+      - db
+  frontend:
+    build: 
+      context: ./readfast_frontend
+      dockerfile: Dockerfile
+    container_name: readfast_frontend
+    command: npm run dev
+    ports: 
+      - "8080:8080"
+    depends_on:
+      - backend
+
