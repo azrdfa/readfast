@@ -18,6 +18,8 @@ services:
         python manage.py makemigrations &&
         python manage.py migrate &&
         /code/wait-for-it.sh db:5432 -- python manage.py runserver 0.0.0.0:8000"
+    volumes: 
+      - ./readfast_backend:/code
     ports: 
       - 8000:8000
     depends_on:
@@ -28,8 +30,13 @@ services:
       dockerfile: Dockerfile
     container_name: readfast-dev_frontend
     command: npm run dev
+    volumes: 
+      - ./readfast_frontend:/code
+      - nodemodules:/code/node_modules
     ports: 
       - "8080:8080"
     depends_on:
       - backend
-
+  
+volumes: 
+  nodemodules: {}
