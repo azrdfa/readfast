@@ -15,6 +15,7 @@ services:
       dockerfile: Dockerfile
     container_name: readfast_backend
     command: bash -c "
+        python manage.py collectstatic &&
         python manage.py makemigrations &&
         python manage.py migrate &&
         /code/wait-for-it.sh db:5432 -- gunicorn --bind 0.0.0.0:8000 backend.wsgi"
@@ -27,9 +28,14 @@ services:
       context: ./readfast_frontend
       dockerfile: Dockerfile
     container_name: readfast_frontend
-    command: npm run build
+    command: bash -c "
+        npm run build &&
+        tail -f /dev/null"
     volumes: 
-      - /var/www/readfast_frontend/dist:/code/dist
+      - ./readfast_frontend:/code
+      - nodemodules:/code/node_modules
     depends_on:
       - backend
 
+volumes: 
+  nodemodules: {}
